@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="theme-color" content="#0f0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎵 Music Streamer</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { background: #111; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; }
+    .result { margin-top: 20px; }
+    .song { background: #222; border-radius: 10px; margin: 10px; padding: 10px; }
+    iframe { width: 100%; height: 300px; border: none; border-radius: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>🎧 Free Music Streamer</h1>
+  <input id="search" placeholder="Search songs..." />
+  <button onclick="searchMusic()">🔍 Search</button>
+  <div class="result" id="results"></div>
+
+  <script>
+    const API_KEY = "YOUR_YOUTUBE_API_KEY"; // Replace with your key
+
+    async function searchMusic() {
+      const q = document.getElementById("search").value;
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${encodeURIComponent(q)}&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const results = document.getElementById("results");
+      results.innerHTML = '';
+
+      data.items.forEach(item => {
+        const vid = item.id.videoId;
+        const title = item.snippet.title;
+        const thumb = item.snippet.thumbnails.medium.url;
+
+        results.innerHTML += `
+          <div class="song">
+            <img src="${thumb}" style="width:100%;border-radius:10px;">
+            <p><b>${title}</b></p>
+            <iframe src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe>
+            <p style="color:yellow;">📌 Tap to play</p>
+          </div>
+        `;
+      });
+    }
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
